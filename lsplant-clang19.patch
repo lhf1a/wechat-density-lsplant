@@ -1,0 +1,512 @@
+--- a/lsplant/src/main/jni/art/mirror/class.cxx
++++ b/lsplant/src/main/jni/art/mirror/class.cxx
+@@ -60,41 +60,69 @@
+             "_ZN3art6mirror5Class9SetStatusENS_6HandleIS1_EENS_11ClassStatusEPNS_6ThreadE"_sym.hook->*[]
+         <Backup auto backup>
+         (TrivialHandle<Class> h, uint8_t new_status, Thread *self) static -> void {
++        // NDK r28 Clang 19 eagerly instantiates the signature-probing dummy.
++        // Neither dummy backup is ever executed by LSPlant.
++        if constexpr (!__is_same(decltype(backup), void (*)()) &&
++                      !__is_member_function_pointer(decltype(backup))) {
++
+             if (new_status == initialized_status) {
+                 BackupClassMethods(GetClassDef_(h.Get()), self);
+             }
+             return backup(h, new_status, self);
+-        };
++        
++        } else { __builtin_unreachable(); }
++    };
+ 
+     inline static auto SetStatus_ =
+         "_ZN3art6mirror5Class9SetStatusENS_6HandleIS1_EENS1_6StatusEPNS_6ThreadE"_sym.hook->*[]
+         <Backup auto backup>
+          (Handle<Class> h, int new_status, Thread *self) static -> void {
++        // NDK r28 Clang 19 eagerly instantiates the signature-probing dummy.
++        // Neither dummy backup is ever executed by LSPlant.
++        if constexpr (!__is_same(decltype(backup), void (*)()) &&
++                      !__is_member_function_pointer(decltype(backup))) {
++
+             if (new_status == static_cast<int>(initialized_status)) {
+                 BackupClassMethods(GetClassDef_(h.Get()), self);
+             }
+             return backup(h, new_status, self);
+-        };
++        
++        } else { __builtin_unreachable(); }
++    };
+ 
+     inline static auto TrivialSetStatus_ =
+         "_ZN3art6mirror5Class9SetStatusENS_6HandleIS1_EENS1_6StatusEPNS_6ThreadE"_sym.hook->*[]
+         <Backup auto backup>
+         (TrivialHandle<Class> h, uint32_t new_status, Thread *self) static -> void {
++        // NDK r28 Clang 19 eagerly instantiates the signature-probing dummy.
++        // Neither dummy backup is ever executed by LSPlant.
++        if constexpr (!__is_same(decltype(backup), void (*)()) &&
++                      !__is_member_function_pointer(decltype(backup))) {
++
+             if (new_status == initialized_status) {
+                 BackupClassMethods(GetClassDef_(h.Get()), self);
+             }
+             return backup(h, new_status, self);
+-        };
++        
++        } else { __builtin_unreachable(); }
++    };
+ 
+     inline static auto ClassSetStatus_ =
+         "_ZN3art6mirror5Class9SetStatusENS1_6StatusEPNS_6ThreadE"_sym.hook->*[]
+         <MemBackup auto backup>
+         (Class *thiz, int new_status, Thread *self) static -> void {
++        // NDK r28 Clang 19 eagerly instantiates the signature-probing dummy.
++        // Neither dummy backup is ever executed by LSPlant.
++        if constexpr (!__is_same(decltype(backup), void (*)()) &&
++                      !__is_member_function_pointer(decltype(backup))) {
++
+             if (new_status == static_cast<int>(initialized_status)) {
+                 BackupClassMethods(GetClassDef_(thiz), self);
+             }
+             return backup(thiz, new_status, self);
+-        };
++        
++        } else { __builtin_unreachable(); }
++    };
+ 
+ public:
+     static bool Init(const HookHandler &handler) {
+--- a/lsplant/src/main/jni/art/runtime/art_method.cxx
++++ b/lsplant/src/main/jni/art/runtime/art_method.cxx
+@@ -49,10 +49,17 @@
+     inline static auto GetQuickFrameInfo_ =
+         "_ZN3art9ArtMethod17GetQuickFrameInfoEv"_sym.hook->*
+         []<MemBackup auto backup>(ArtMethod *thiz) static -> QuickMethodFrameInfo {
++        // NDK r28 Clang 19 eagerly instantiates the signature-probing dummy.
++        // Neither dummy backup is ever executed by LSPlant.
++        if constexpr (!__is_same(decltype(backup), void (*)()) &&
++                      !__is_member_function_pointer(decltype(backup))) {
++
+         if (proxied_backup_methods_.contains(thiz)) [[unlikely]] {
+             return backup(abstract_method_);
+         }
+         return backup(thiz);
++    
++        } else { __builtin_unreachable(); }
+     };
+ 
+     inline void ThrowInvocationTimeError() {
+--- a/lsplant/src/main/jni/art/runtime/class_linker.cxx
++++ b/lsplant/src/main/jni/art/runtime/class_linker.cxx
+@@ -24,11 +24,18 @@
+         "_ZN3art11ClassLinker30ShouldUseInterpreterEntrypointEPNS_9ArtMethodEPKv"_sym.hook->*[]
+         <Backup auto backup>
+         (ArtMethod *art_method, const void *quick_code)static -> bool {
++        // NDK r28 Clang 19 eagerly instantiates the signature-probing dummy.
++        // Neither dummy backup is ever executed by LSPlant.
++        if constexpr (!__is_same(decltype(backup), void (*)()) &&
++                      !__is_member_function_pointer(decltype(backup))) {
++
+             if (quick_code != nullptr && IsHooked(art_method)) [[unlikely]] {
+                 return false;
+             }
+             return backup(art_method, quick_code);
+-        };
++        
++        } else { __builtin_unreachable(); }
++    };
+ 
+     inline static auto art_quick_to_interpreter_bridge_ =
+             "art_quick_to_interpreter_bridge"_sym.as<void(void *)>;
+@@ -54,58 +61,114 @@
+         <MemBackup auto backup>
+         (ArtMethod *method, Thread *thread, const void *native_method,
+          bool is_fast) static -> void {
++        // NDK r28 Clang 19 eagerly instantiates the signature-probing dummy.
++        // Neither dummy backup is ever executed by LSPlant.
++        if constexpr (!__is_same(decltype(backup), void (*)()) &&
++                      !__is_member_function_pointer(decltype(backup))) {
++
+             return backup(MayGetBackup(method), thread, native_method, is_fast);
+-        };
++        
++        } else { __builtin_unreachable(); }
++    };
+ 
+     inline static auto UnregisterNativeThread_ =
+         "_ZN3art6mirror9ArtMethod16UnregisterNativeEPNS_6ThreadE"_sym.hook->*[]
+         <MemBackup auto backup>
+         (ArtMethod *method, Thread *thread) static -> void {
++        // NDK r28 Clang 19 eagerly instantiates the signature-probing dummy.
++        // Neither dummy backup is ever executed by LSPlant.
++        if constexpr (!__is_same(decltype(backup), void (*)()) &&
++                      !__is_member_function_pointer(decltype(backup))) {
++
+             return backup(MayGetBackup(method), thread);
+-        };
++        
++        } else { __builtin_unreachable(); }
++    };
+ 
+     inline static auto RegisterNativeFast_ =
+         "_ZN3art9ArtMethod14RegisterNativeEPKvb"_sym.hook->*[]
+         <MemBackup auto backup>
+         (ArtMethod *method, const void *native_method, bool is_fast) static -> void {
++        // NDK r28 Clang 19 eagerly instantiates the signature-probing dummy.
++        // Neither dummy backup is ever executed by LSPlant.
++        if constexpr (!__is_same(decltype(backup), void (*)()) &&
++                      !__is_member_function_pointer(decltype(backup))) {
++
+             return backup(MayGetBackup(method), native_method, is_fast);
+-        };
++        
++        } else { __builtin_unreachable(); }
++    };
+ 
+     inline static auto RegisterNativeFastWithReturn_ =
+         "_ZN3art9ArtMethod14RegisterNativeEPKvb"_sym.hook->*[]
+         <MemBackup auto backup>
+         (ArtMethod *method, const void *native_method,
+          bool is_fast) static -> const void * {
++        // NDK r28 Clang 19 eagerly instantiates the signature-probing dummy.
++        // Neither dummy backup is ever executed by LSPlant.
++        if constexpr (!__is_same(decltype(backup), void (*)()) &&
++                      !__is_member_function_pointer(decltype(backup))) {
++
+             return backup(MayGetBackup(method), native_method, is_fast);
+-        };
++        
++        } else { __builtin_unreachable(); }
++    };
+ 
+     inline static auto RegisterNative_ =
+         "_ZN3art9ArtMethod14RegisterNativeEPKv"_sym.hook->*[]
+         <MemBackup auto backup>
+         (ArtMethod *method, const void *native_method) static -> const void * {
++        // NDK r28 Clang 19 eagerly instantiates the signature-probing dummy.
++        // Neither dummy backup is ever executed by LSPlant.
++        if constexpr (!__is_same(decltype(backup), void (*)()) &&
++                      !__is_member_function_pointer(decltype(backup))) {
++
+             return backup(MayGetBackup(method), native_method);
+-        };
++        
++        } else { __builtin_unreachable(); }
++    };
+ 
+     inline static auto UnregisterNative_ =
+         "_ZN3art9ArtMethod16UnregisterNativeEv"_sym.hook->*[]
+         <MemBackup auto backup>
+         (ArtMethod *method) static -> void {
++        // NDK r28 Clang 19 eagerly instantiates the signature-probing dummy.
++        // Neither dummy backup is ever executed by LSPlant.
++        if constexpr (!__is_same(decltype(backup), void (*)()) &&
++                      !__is_member_function_pointer(decltype(backup))) {
++
+             return backup(MayGetBackup(method));
+-        };
++        
++        } else { __builtin_unreachable(); }
++    };
+ 
+     inline static auto RegisterNativeClassLinker_ =
+         "_ZN3art11ClassLinker14RegisterNativeEPNS_6ThreadEPNS_9ArtMethodEPKv"_sym.hook->*[]
+         <MemBackup auto backup>
+         (ClassLinker *thiz, Thread *self, ArtMethod *method, const void *native_method) static -> const void *{
++        // NDK r28 Clang 19 eagerly instantiates the signature-probing dummy.
++        // Neither dummy backup is ever executed by LSPlant.
++        if constexpr (!__is_same(decltype(backup), void (*)()) &&
++                      !__is_member_function_pointer(decltype(backup))) {
++
+             return backup(thiz, self, MayGetBackup(method), native_method);
+-        };
++        
++        } else { __builtin_unreachable(); }
++    };
+ 
+     inline static auto UnregisterNativeClassLinker_ =
+         "_ZN3art11ClassLinker16UnregisterNativeEPNS_6ThreadEPNS_9ArtMethodE"_sym.hook->*[]
+         <MemBackup auto backup>
+         (ClassLinker *thiz, Thread *self, ArtMethod *method) static -> void {
++        // NDK r28 Clang 19 eagerly instantiates the signature-probing dummy.
++        // Neither dummy backup is ever executed by LSPlant.
++        if constexpr (!__is_same(decltype(backup), void (*)()) &&
++                      !__is_member_function_pointer(decltype(backup))) {
++
+             return backup(thiz, self, MayGetBackup(method));
+-        };
++        
++        } else { __builtin_unreachable(); }
++    };
+ 
+     static void RestoreBackup(const dex::ClassDef *class_def, art::Thread *self) {
+         auto methods = mirror::Class::PopBackup(class_def, self);
+@@ -133,9 +196,16 @@
+         "_ZN3art11ClassLinker22FixupStaticTrampolinesENS_6ObjPtrINS_6mirror5ClassEEE"_sym.hook->*[]
+         <MemBackup auto backup>
+         (ClassLinker *thiz, ObjPtr<mirror::Class> mirror_class) static -> void {
++        // NDK r28 Clang 19 eagerly instantiates the signature-probing dummy.
++        // Neither dummy backup is ever executed by LSPlant.
++        if constexpr (!__is_same(decltype(backup), void (*)()) &&
++                      !__is_member_function_pointer(decltype(backup))) {
++
+             backup(thiz, mirror_class);
+             RestoreBackup(mirror_class->GetClassDef(), nullptr);
+-        };
++        
++        } else { __builtin_unreachable(); }
++    };
+ 
+     inline static auto FixupStaticTrampolinesWithThread_ =
+         "_ZN3art11ClassLinker22FixupStaticTrampolinesEPNS_6ThreadENS_6ObjPtrINS_6mirror5ClassEEE"_sym
+@@ -222,9 +292,16 @@
+                         return []<MemBackup auto backup>(
+                                    ClassLinker *thiz, Thread *self,
+                                    ObjPtr<mirror::Class> mirror_class) static -> void {
++        // NDK r28 Clang 19 eagerly instantiates the signature-probing dummy.
++        // Neither dummy backup is ever executed by LSPlant.
++        if constexpr (!__is_same(decltype(backup), void (*)()) &&
++                      !__is_member_function_pointer(decltype(backup))) {
++
+                             backup(thiz, self, mirror_class);
+                             RestoreBackup(mirror_class->GetClassDef(), self);
+-                        };
++                        
++        } else { __builtin_unreachable(); }
++    };
+                     }
+                 }();
+ 
+@@ -232,26 +309,47 @@
+         "_ZN3art11ClassLinker22FixupStaticTrampolinesEPNS_6mirror5ClassE"_sym.hook->*[]
+         <MemBackup auto backup>
+         (ClassLinker *thiz, mirror::Class *mirror_class)static -> void {
++        // NDK r28 Clang 19 eagerly instantiates the signature-probing dummy.
++        // Neither dummy backup is ever executed by LSPlant.
++        if constexpr (!__is_same(decltype(backup), void (*)()) &&
++                      !__is_member_function_pointer(decltype(backup))) {
++
+             backup(thiz, mirror_class);
+             RestoreBackup(mirror_class->GetClassDef(), nullptr);
+-        };
++        
++        } else { __builtin_unreachable(); }
++    };
+ 
+     inline static auto AdjustThreadVisibilityCounter_ =
+         ("_ZN3art11ClassLinker26VisiblyInitializedCallback29AdjustThreadVisibilityCounterEPNS_6ThreadEi"_sym |
+          "_ZN3art11ClassLinker26VisiblyInitializedCallback29AdjustThreadVisibilityCounterEPNS_6ThreadEl"_sym).hook->*[]
+          <MemBackup auto backup>
+          (ClassLinker *thiz, Thread *self, ssize_t adjustment) static -> void {
++        // NDK r28 Clang 19 eagerly instantiates the signature-probing dummy.
++        // Neither dummy backup is ever executed by LSPlant.
++        if constexpr (!__is_same(decltype(backup), void (*)()) &&
++                      !__is_member_function_pointer(decltype(backup))) {
++
+             backup(thiz, self, adjustment);
+             RestoreBackup(nullptr, self);
+-        };
++        
++        } else { __builtin_unreachable(); }
++    };
+ 
+     inline static auto MarkVisiblyInitialized_ =
+         "_ZN3art11ClassLinker26VisiblyInitializedCallback22MarkVisiblyInitializedEPNS_6ThreadE"_sym.hook->*[]
+         <MemBackup auto backup>
+         (ClassLinker *thiz, Thread *self) static -> void {
++        // NDK r28 Clang 19 eagerly instantiates the signature-probing dummy.
++        // Neither dummy backup is ever executed by LSPlant.
++        if constexpr (!__is_same(decltype(backup), void (*)()) &&
++                      !__is_member_function_pointer(decltype(backup))) {
++
+             backup(thiz, self);
+             RestoreBackup(nullptr, self);
+-        };
++        
++        } else { __builtin_unreachable(); }
++    };
+ 
+     static void *GetOptimizedCodeFor(ArtMethod *method) {
+         if constexpr (is_arch_v<Arch::kX86>) {
+--- a/lsplant/src/main/jni/art/runtime/instrumentation.cxx
++++ b/lsplant/src/main/jni/art/runtime/instrumentation.cxx
+@@ -25,37 +25,58 @@
+         "_ZN3art15instrumentation15Instrumentation40UpdateMethodsCodeToInterpreterEntryPointEPNS_9ArtMethodE"_sym.hook->*[]
+         <MemBackup auto backup>
+         (Instrumentation *thiz, ArtMethod *art_method) static -> void {
++        // NDK r28 Clang 19 eagerly instantiates the signature-probing dummy.
++        // Neither dummy backup is ever executed by LSPlant.
++        if constexpr (!__is_same(decltype(backup), void (*)()) &&
++                      !__is_member_function_pointer(decltype(backup))) {
++
+             if (IsDeoptimized(art_method)) {
+                 LOGV("skip update entrypoint on deoptimized method %s",
+                      art_method->PrettyMethod(true).c_str());
+                 return;
+             }
+             backup(thiz, MaybeUseBackupMethod(art_method, nullptr));
+-        };
++        
++        } else { __builtin_unreachable(); }
++    };
+ 
+     inline static auto InitializeMethodsCode_ =
+         "_ZN3art15instrumentation15Instrumentation21InitializeMethodsCodeEPNS_9ArtMethodEPKv"_sym.hook->*[]
+          <MemBackup auto backup>
+          (Instrumentation *thiz, ArtMethod *art_method, const void *quick_code) static -> void {
++        // NDK r28 Clang 19 eagerly instantiates the signature-probing dummy.
++        // Neither dummy backup is ever executed by LSPlant.
++        if constexpr (!__is_same(decltype(backup), void (*)()) &&
++                      !__is_member_function_pointer(decltype(backup))) {
++
+             if (IsDeoptimized(art_method)) {
+                 LOGV("skip update entrypoint on deoptimized method %s",
+                      art_method->PrettyMethod(true).c_str());
+                 return;
+             }
+             backup(thiz, MaybeUseBackupMethod(art_method, quick_code), quick_code);
+-        };
++        
++        } else { __builtin_unreachable(); }
++    };
+ 
+     inline static auto ReinitializeMethodsCode_ =
+         "_ZN3art15instrumentation15Instrumentation23ReinitializeMethodsCodeEPNS_9ArtMethodE"_sym.hook->*[]
+          <MemBackup auto backup>
+          (Instrumentation *thiz, ArtMethod *art_method) static -> void {
++        // NDK r28 Clang 19 eagerly instantiates the signature-probing dummy.
++        // Neither dummy backup is ever executed by LSPlant.
++        if constexpr (!__is_same(decltype(backup), void (*)()) &&
++                      !__is_member_function_pointer(decltype(backup))) {
++
+             if (IsDeoptimized(art_method)) {
+                 LOGV("skip update entrypoint on deoptimized method %s",
+                      art_method->PrettyMethod(true).c_str());
+                 return;
+             }
+             backup(thiz, MaybeUseBackupMethod(art_method, nullptr));
+-        };
++        
++        } else { __builtin_unreachable(); }
++    };
+ 
+ public:
+     static bool Init(JNIEnv *env, const HookHandler &handler) {
+--- a/lsplant/src/main/jni/art/runtime/jit/jit.cxx
++++ b/lsplant/src/main/jni/art/runtime/jit/jit.cxx
+@@ -25,17 +25,29 @@
+         "_ZN3art3jit3Jit27EnqueueOptimizedCompilationEPNS_9ArtMethodEPNS_6ThreadE"_sym.hook->*[]
+         <MemBackup auto backup>
+         (Jit *thiz, ArtMethod *method, Thread *self) static -> void {
++        // NDK r28 Clang 19 eagerly instantiates the signature-probing dummy.
++        // Neither dummy backup is ever executed by LSPlant.
++        if constexpr (!__is_same(decltype(backup), void (*)()) &&
++                      !__is_member_function_pointer(decltype(backup))) {
++
+             if (auto target = IsBackup(method); target) [[unlikely]] {
+                 LOGD("Propagate enqueue compilation: %p -> %p", method, target);
+                 method = target;
+             }
+             return backup(thiz, method, self);
+-        };
++        
++        } else { __builtin_unreachable(); }
++    };
+ 
+     inline static auto AddCompileTask_ =
+         "_ZN3art3jit3Jit14AddCompileTaskEPNS_6ThreadEPNS_9ArtMethodENS_15CompilationKindEb"_sym.hook->*[]
+         <MemBackup auto backup>
+         (Jit *thiz, Thread *self, ArtMethod *method, CompilationKind compilation_kind, bool precompile) static -> void {
++        // NDK r28 Clang 19 eagerly instantiates the signature-probing dummy.
++        // Neither dummy backup is ever executed by LSPlant.
++        if constexpr (!__is_same(decltype(backup), void (*)()) &&
++                      !__is_member_function_pointer(decltype(backup))) {
++
+             if (compilation_kind == kOptimized && !precompile) {
+                 if (auto b = IsHooked(method); b) [[unlikely]] {
+                     LOGD("Propagate compile task: %p -> %p", method, b);
+@@ -43,7 +55,9 @@
+                 }
+             }
+             return backup(thiz, self, method, compilation_kind, precompile);
+-        };
++        
++        } else { __builtin_unreachable(); }
++    };
+ 
+ public:
+     static bool Init(const HookHandler &handler) {
+--- a/lsplant/src/main/jni/art/runtime/jit/jit_code_cache.cxx
++++ b/lsplant/src/main/jni/art/runtime/jit/jit_code_cache.cxx
+@@ -31,17 +31,31 @@
+             "_ZN3art3jit12JitCodeCache19GarbageCollectCacheEPNS_6ThreadE"_sym.hook->*[]
+         <MemBackup auto backup>
+         (JitCodeCache *thiz, Thread *self) static -> void {
++        // NDK r28 Clang 19 eagerly instantiates the signature-probing dummy.
++        // Neither dummy backup is ever executed by LSPlant.
++        if constexpr (!__is_same(decltype(backup), void (*)()) &&
++                      !__is_member_function_pointer(decltype(backup))) {
++
+             MoveObsoleteMethods(thiz);
+             backup(thiz, self);
+-        };
++        
++        } else { __builtin_unreachable(); }
++    };
+ 
+     inline static auto DoCollection_ =
+             "_ZN3art3jit12JitCodeCache12DoCollectionEPNS_6ThreadE"_sym.hook->*[]
+         <MemBackup auto backup>
+         (JitCodeCache *thiz, Thread *self) static -> void {
++        // NDK r28 Clang 19 eagerly instantiates the signature-probing dummy.
++        // Neither dummy backup is ever executed by LSPlant.
++        if constexpr (!__is_same(decltype(backup), void (*)()) &&
++                      !__is_member_function_pointer(decltype(backup))) {
++
+             MoveObsoleteMethods(thiz);
+             backup(thiz, self);
+-        };
++        
++        } else { __builtin_unreachable(); }
++    };
+ 
+ public:
+     static bool Init(const HookHandler &handler) {
+--- a/lsplant/src/main/jni/art/runtime/jni/jni_id_manager.cxx
++++ b/lsplant/src/main/jni/art/runtime/jni/jni_id_manager.cxx
+@@ -20,11 +20,18 @@
+             .hook
+             ->*[]<MemBackup auto backup>(JniIdManager *thiz,
+                                          ReflectiveHandle<ArtMethod> method) static -> uintptr_t {
++        // NDK r28 Clang 19 eagerly instantiates the signature-probing dummy.
++        // Neither dummy backup is ever executed by LSPlant.
++        if constexpr (!__is_same(decltype(backup), void (*)()) &&
++                      !__is_member_function_pointer(decltype(backup))) {
++
+         if (auto *target = IsBackup(method.Get()); target) {
+             LOGD("get generic id for %s", method.Get()->PrettyMethod().c_str());
+             method.Set(target);
+         }
+         return backup(thiz, method);
++    
++        } else { __builtin_unreachable(); }
+     };
+ 
+     inline static auto EncodeGenericIdWithClass_ =
+@@ -33,11 +40,18 @@
+             .hook
+             ->*[]<MemBackup auto backup>(JniIdManager *thiz, Handle<mirror::Class> klass,
+                                          ReflectiveHandle<ArtMethod> method) static -> uintptr_t {
++        // NDK r28 Clang 19 eagerly instantiates the signature-probing dummy.
++        // Neither dummy backup is ever executed by LSPlant.
++        if constexpr (!__is_same(decltype(backup), void (*)()) &&
++                      !__is_member_function_pointer(decltype(backup))) {
++
+         if (auto *target = IsBackup(method.Get()); target) {
+             LOGD("get generic id for %s", method.Get()->PrettyMethod().c_str());
+             method.Set(target);
+         }
+         return backup(thiz, klass, method);
++    
++        } else { __builtin_unreachable(); }
+     };
+ 
+ public:

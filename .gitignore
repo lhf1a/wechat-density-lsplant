@@ -1,0 +1,15 @@
+/build/
+/private/
+/logs/
+__pycache__/
+*.pyc
+*.log
+.env
+.env.*
+*.key
+*.pem
+authorized_keys
+known_hosts
+*.apk
+*.png
+*.jpg

@@ -1,0 +1,48 @@
+{
+  "lsplant": {
+    "repository": "https://github.com/JingMatrix/LSPlant",
+    "commit": "7a768e31ffb2852797631b5140b54f9702a78743",
+    "patch": "lsplant-clang19.patch",
+    "license": "LGPL-3.0-or-later",
+    "archive": "vendor/sources/lsplant.tar.gz",
+    "archive_sha256": "ca0c658bc4d216ce3a7954e3eead7c4451c4e0974b357b43f71da66dc54c2815",
+    "destination": "lsplant"
+  },
+  "dex_builder": {
+    "repository": "https://github.com/JingMatrix/DexBuilder",
+    "commit": "0c27690d88e217d1d2f0f53658cc140b43520b18",
+    "archive": "vendor/sources/dex_builder.tar.gz",
+    "archive_sha256": "4b69c9ff531967cb748ad292b38338d3d6bd1ac9444e5497d650cf900c6ed50a",
+    "destination": "lsplant/lsplant/src/main/jni/external/dex_builder"
+  },
+  "parallel_hashmap": {
+    "repository": "https://github.com/greg7mdp/parallel-hashmap",
+    "commit": "0cd57d29a959256ed66b2afdd1009928fc625d09",
+    "archive": "vendor/sources/parallel_hashmap.tar.gz",
+    "archive_sha256": "162ad32b3e522b419b47868633f8e082270dce50331d1a363491e13e779dbe60",
+    "destination": "lsplant/lsplant/src/main/jni/external/dex_builder/external/parallel_hashmap"
+  },
+  "dobby": {
+    "repository": "https://github.com/JingMatrix/Dobby",
+    "commit": "05a09ac6807a6bb1726350e40ea4b127c1c79809",
+    "license": "Apache-2.0",
+    "archive": "vendor/sources/dobby.tar.gz",
+    "archive_sha256": "23c33f28daf2c1aecbb913977d3650f7587656b34e8cb7a9936c4afc8dfe5758",
+    "destination": "dobby"
+  },
+  "xdl": {
+    "repository": "https://github.com/hexhacking/xDL",
+    "commit": "1e0b6254165a2ddcbd32f77a371700c69155acf8",
+    "license": "MIT",
+    "archive": "vendor/sources/xdl.tar.gz",
+    "archive_sha256": "bb1dbad3c9fef77618db433cadd8cfb419e78922dce010f8d7044e883cea3b54",
+    "destination": "xdl"
+  },
+  "zygisk_header": {
+    "repository": "https://github.com/topjohnwu/zygisk-module-sample",
+    "commit": "8ce26128f81baaed0b969aaf7f52f886b61af4ab",
+    "archive": "vendor/sources/zygisk_header.tar.gz",
+    "archive_sha256": "b83202e692421d746f81f741af9ff2e363d76bfe11f508b12f6c512e1298a690",
+    "destination": "zygisk"
+  }
+}

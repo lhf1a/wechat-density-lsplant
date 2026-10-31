@@ -1,0 +1,20 @@
+{
+  "module_id": "sq2_density_test",
+  "module_version": "0.1",
+  "variant": "pre-application-cache-sync",
+  "validation_date": "2026-11-01",
+  "user_confirmed_display": true,
+  "wechat_version": "8.0.79",
+  "wechat_version_code": 3200,
+  "android_user": 10,
+  "process": "com.tencent.mm",
+  "identity": "SM-F9560 / samsung, supplied by existing Device Faker",
+  "persistent_gate_enabled": false,
+  "files": {
+    "sq2-density-test.zip": "8e49d6f4b983e79e074c9f3771834dcb5ca0aebf10b3a57e75917958c52fb741",
+    "classes.dex": "591d608519e3b77522b904b3cb1e8ba15622f2c4fb626ec1efeba84e6f09aced",
+    "arm64-v8a.so": "9aefadb39902e3fe814a60e07f161f939f4422e09691a22ad724e22ca1c77243"
+  },
+  "status": "Exact saved device-tested bytes. Subsequent rebuilds are separate and not automatically device-verified.",
+  "limits": "Sampled display pages and window changes passed, then user confirmed. Previous initial-registration black screen has no established root cause; reboot stability and phone-side coexistence not established."
+}
