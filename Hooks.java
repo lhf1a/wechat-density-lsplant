@@ -42,10 +42,20 @@ public final class Hooks {
     }
     public Object callback(Object[] args) throws Throwable {
         if (kind.equals("subject")) return 11;
+        if (kind.equals("patchLoader")) {
+            Object result = original(args);
+            if (context != null) {
+                try { install(context, Class.forName("jf5.f", false, (ClassLoader) args[0])); }
+                catch (ClassNotFoundException ignored) { /* Unrelated patch loader. */ }
+            }
+            return result;
+        }
         if (kind.equals("newApplication")) {
             Log.i(TAG, "INSTALL_STAGE newApplication class=" + args[2]);
             install((Context) args[3]);
-            return original(args);
+            Object result = original(args);
+            install((Application) result);
+            return result;
         }
         if (kind.equals("attach")) {
             Log.i(TAG, "INSTALL_STAGE attach");
@@ -91,6 +101,11 @@ public final class Hooks {
         try {
             DisplayMetrics actual = windowMetrics();
             if (actual == null) return;
+            Method bitmapDensity = android.graphics.Bitmap.class.getDeclaredMethod("setDefaultDensity", int.class);
+            bitmapDensity.setAccessible(true); bitmapDensity.invoke(null, actual.densityDpi);
+            Configuration config = new Configuration(context.getResources().getConfiguration());
+            config.densityDpi = actual.densityDpi;
+            context.getResources().updateConfiguration(config, actual);
             int updated = 0;
             for (Field f : densityClass.getDeclaredFields()) {
                 if (Modifier.isStatic(f.getModifiers()) && f.getType() == DisplayMetrics.class) {
@@ -105,14 +120,18 @@ public final class Hooks {
             Log.i(TAG, "CACHES_SYNCHRONIZED count=" + updated + " dpi=" + actual.densityDpi);
         } catch (Throwable t) { Log.e(TAG, "CACHE_SYNC_FAILED", t); }
     }
-    static synchronized void install(Context c) {
-        if (installed || !"com.tencent.mm".equals(c.getPackageName())) return;
+    static void install(Context c) { install(c, null); }
+    static synchronized void install(Context c, Class<?> resolved) {
+        if (!"com.tencent.mm".equals(c.getPackageName())) return;
         int before = live.size();
         try {
             if (c.getPackageManager().getPackageInfo("com.tencent.mm", 0).getLongVersionCode() != 3200L)
                 throw new IllegalStateException("Only verified WeChat 8.0.79/versionCode 3200 is supported");
             context = c.getApplicationContext() != null ? c.getApplicationContext() : c;
-            Class<?> density = Class.forName("jf5.f", false, c.getClassLoader());
+            Class<?> density = resolved != null ? resolved : Class.forName("jf5.f", false, c.getClassLoader());
+            if (installed && density == densityClass) return;
+            if (installed) Log.i(TAG, "DENSITY_CLASSLOADER_CHANGED previous=" + densityClass.getClassLoader()
+                    + " current=" + density.getClassLoader());
             densityClass = density;
             Method raw = density.getDeclaredMethod("d");
             Method adjusted = density.getDeclaredMethod("e");
@@ -129,6 +148,10 @@ public final class Hooks {
             for (Constructor<?> ctor : density.getDeclaredConstructors()) deopt(ctor);
             for (Method method : density.getDeclaredMethods()) deopt(method);
             installed = true;
+            // Tinker can initialize a replacement class during Application.attach.
+            // Repair its already-created caches before onCreate builds any views.
+            Field cached = density.getDeclaredField("c"); cached.setAccessible(true);
+            if (cached.get(null) != null) synchronizeCaches();
             Log.i(TAG, "WECHAT_HOOKS_READY variant=pre-application-cache-sync windowDpi=" + dm.densityDpi + " model=" + android.os.Build.MODEL
                     + " brand=" + android.os.Build.BRAND + " class=" + density.getName());
         } catch (Throwable t) {
@@ -154,6 +177,8 @@ public final class Hooks {
                 return;
             }
             add(Instrumentation.class.getDeclaredMethod("newApplication", ClassLoader.class, String.class, Context.class), "newApplication");
+            for (Constructor<?> ctor : Class.forName("dalvik.system.DelegateLastClassLoader").getDeclaredConstructors())
+                add(ctor, "patchLoader");
             add(Application.class.getDeclaredMethod("attach", Context.class), "attach");
             add(Instrumentation.class.getDeclaredMethod("callApplicationOnCreate", Application.class), "onCreate");
             Log.i(TAG, "APPLICATION_HOOKS_READY");

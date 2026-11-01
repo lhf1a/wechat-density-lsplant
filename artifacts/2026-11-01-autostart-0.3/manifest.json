@@ -1,0 +1,16 @@
+{
+  "module_id": "sq2_density_test",
+  "module_version": "0.3-auto",
+  "package": "wechat-density-autostart-0.3.zip",
+  "default_enabled": true,
+  "startup": "one current-boot wechat-auto authorization; no renewal worker",
+  "service_sha256": "bc116c2064c7591c1687f0e0ed19ee0b2bc6497b9ca0856a743c262f747ea917",
+  "device_verified": false,
+  "files": {
+    "wechat-density-autostart-0.3.zip": "7f3e2e8f1404f77ffba89e2c58f69860ca536e941ae6a1bb1b81956eecde1710",
+    "classes.dex": "591d608519e3b77522b904b3cb1e8ba15622f2c4fb626ec1efeba84e6f09aced",
+    "arm64-v8a.so": "b480177e5ca923e2cdb0ea8396dd41b564d19f08a7614947c49acb0000fb4292"
+  },
+  "local_checks": "one-shot service, permissions, disable/remove, uninstall, 12 actual native gate-policy cases, full build",
+  "note": "Boot and one-shot startup passed; visual acceptance failed because active Tinker loaded a different density class. Superseded by 0.4; do not deploy this archived comparison build."
+}

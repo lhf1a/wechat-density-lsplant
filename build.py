@@ -7,8 +7,8 @@ import json
 import os
 import shutil
 import subprocess
-import zipfile
 from prepare_deps import prepare
+from package_autostart import package_module
 
 ROOT = Path(__file__).resolve().parent
 
@@ -54,19 +54,13 @@ def main():
         run("javac", "--release", "8", "-classpath", android_jar, "-d", classes, ROOT / "Hooks.java")
         run(d8, "--min-api", "28", "--lib", android_jar, "--output", dex,
             *sorted(Path(classes).rglob("*.class")))
-    module = out / "sq2-density-test.zip"
-    with zipfile.ZipFile(module, "w", zipfile.ZIP_DEFLATED) as z:
-        z.write(native / "libsq2_density_test.so", "zygisk/arm64-v8a.so")
-        z.write(dex / "classes.dex", "classes.dex")
-        z.writestr("module.prop", "id=sq2_density_test\nname=SQ2 WeChat density lab test\nversion=0.1\nversionCode=1\nauthor=SQ2 lab\ndescription=LSPlant test: explicit boot-bound expiring gate, user10 main process only.\n")
-        z.writestr("customize.sh", 'SKIPUNZIP=0\n# Installation remains disabled; registration needs a separately authorized reboot.\ntouch "$MODPATH/disable"\n')
-        z.writestr("skip_mount", "")
-        z.writestr("disable", "")
+    module = out / "wechat-density-autostart-0.4.zip"
+    package_module(module, native / "libsq2_density_test.so", dex / "classes.dex")
     audit = {
         "outputs": {str(p.relative_to(ROOT)): digest(p) for p in
                     (module, native / "libsq2_density_test.so", dex / "classes.dex")},
         "sources": {name: digest(ROOT / name) for name in
-                    ("module.cpp", "Hooks.java", "CMakeLists.txt", "dependencies.json", "lsplant-clang19.patch")},
+                    ("module.cpp", "gate_policy.h", "Hooks.java", "CMakeLists.txt", "dependencies.json", "lsplant-clang19.patch", "service.sh", "uninstall.sh", "package_autostart.py")},
         "sdk_input_sha256": digest(android_jar),
         "ndk_revision": (ndk / "source.properties").read_text(),
         "device_verified": False,

@@ -11,6 +11,7 @@
 #include "lsplant.hpp"
 #include "dobby.h"
 #include "xdl.h"
+#include "gate_policy.h"
 
 #define LOG(...) __android_log_print(ANDROID_LOG_INFO, "SQ2DensityTest", __VA_ARGS__)
 static void *art_handle;
@@ -62,12 +63,13 @@ public:
         if (f) { fscanf(f, "%79s %ld %19s", expected, &deadline, selected); fclose(f); }
         timespec now{}; clock_gettime(CLOCK_BOOTTIME, &now);
         mode = selected;
-        if (!boot[0] || strcmp(boot, expected) || now.tv_sec > deadline ||
-            !((mode == "probe" && process == "local.surface.identityprobe") ||
-              (mode == "wechat" && process == "com.tencent.mm"))) {
+        if (access("/data/adb/modules/sq2_density_test/disable", F_OK) == 0 ||
+            access("/data/adb/modules/sq2_density_test/remove", F_OK) == 0 ||
+            !gateAllows(boot, expected, mode, deadline, now.tv_sec, process)) {
             api->setOption(zygisk::DLCLOSE_MODULE_LIBRARY);
             return;
         }
+        if (mode == "wechat-auto") mode = "wechat";
         int dir = api->getModuleDir();
         int fd = dir < 0 ? -1 : openat(dir, "classes.dex", O_RDONLY | O_CLOEXEC);
         if (dir >= 0) close(dir);

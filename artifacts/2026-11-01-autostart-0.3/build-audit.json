@@ -1,0 +1,22 @@
+{
+  "outputs": {
+    "build/wechat-density-autostart-0.3.zip": "7f3e2e8f1404f77ffba89e2c58f69860ca536e941ae6a1bb1b81956eecde1710",
+    "build/native/libsq2_density_test.so": "b480177e5ca923e2cdb0ea8396dd41b564d19f08a7614947c49acb0000fb4292",
+    "build/dex/classes.dex": "591d608519e3b77522b904b3cb1e8ba15622f2c4fb626ec1efeba84e6f09aced"
+  },
+  "sources": {
+    "module.cpp": "3cbfa5839ff19d3949b599433af02b7eee867f3c75f4b3a5018d2071f5d72422",
+    "gate_policy.h": "4bdd7316b5ecb2d72335635d73a7d5d30471de092fbd7de3ba04658d908097d4",
+    "Hooks.java": "30982ffb5443ac73099485d57d285e99afe4af29bdebbd79efdb0bab3592540b",
+    "CMakeLists.txt": "6433b8a527a81fa635ceb3ab04816dfeabf16784be34fc4c62d17c01acfd1ba5",
+    "dependencies.json": "9077e387cfd015d244f16d31130243686ba3cf51531aaa1c0ab921f9a76d2572",
+    "lsplant-clang19.patch": "164646209d6fb61994380a5c532d7ddfb9fb46e9a7db6a2d5fc7fcc31ae8de75",
+    "service.sh": "bc116c2064c7591c1687f0e0ed19ee0b2bc6497b9ca0856a743c262f747ea917",
+    "uninstall.sh": "a63a74a4875c5fc16b1f1ecf98ce40d98c01e4c3327e188b4fdfc6224896a496",
+    "package_autostart.py": "bad8c2a6cdabcd0a9c74725619fc61d1239387416938d9d95a90465cd9686e02"
+  },
+  "sdk_input_sha256": "4566663c3876e022b4fa4ced8c8697c4ab1688267f090114fd92d027b32e619b",
+  "ndk_revision": "Pkg.Desc = Android NDK\nPkg.Revision = 28.2.13676358\nPkg.BaseRevision = 28.2.13676358\nPkg.ReleaseName = r28c\n",
+  "device_verified": false,
+  "note": "Fresh build only. Exact device-validated files are separately preserved under artifacts/."
+}

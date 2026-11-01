@@ -1,0 +1,16 @@
+{
+  "module_id": "sq2_density_test",
+  "module_version": "0.4-auto",
+  "package": "wechat-density-autostart-0.4.zip",
+  "default_enabled": true,
+  "startup": "one current-boot authorization; no renewal worker",
+  "service_sha256": "bc116c2064c7591c1687f0e0ed19ee0b2bc6497b9ca0856a743c262f747ea917",
+  "device_verified": true,
+  "files": {
+    "wechat-density-autostart-0.4.zip": "ddbd9d41d4f819129250c9ebc742cd2872eac26b43b6756363bb209259d7d73f",
+    "classes.dex": "35f144f625aa902bb901c4fa14d5458c8ab162308c7abdf2cd493ccc8af71a88",
+    "arm64-v8a.so": "b480177e5ca923e2cdb0ea8396dd41b564d19f08a7614947c49acb0000fb4292"
+  },
+  "local_checks": "one-shot startup, disable/remove, uninstall, 12 gate-policy cases, build and payload integrity",
+  "note": "Final package reboot passed on 2026-11-01. Current-boot authorization created automatically, no renewal worker. Cold-start Tinker hooks synchronized three caches at 300dpi before onCreate; Z Fold6 identity and sampled list proportions verified. Other pages and long-term stability are not established."
+}

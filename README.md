@@ -3,6 +3,11 @@
 微信密度修正的独立实验仓库。2026-11-01 用户确认修正后排版没有问题。
 源码、依赖源码包、原实机验证产物和构建入口均在本仓库内；不属于系统移植默认构建。
 
+当前源码为 `0.4-auto`：开机一次性授权、本次开机持续启用，没有续期循环。
+同时处理微信Tinker热更新切换类加载器，避免旧Hook失效。原0.1实测包保留；
+0.3仅作为失败对照，不用于交付。0.4完整包重启、开机自动启用、热更新后的
+密度同步及列表视觉检查通过，详见DEPLOYMENT.md。
+
 ## 实现与范围
 
 Zygisk 在 Android user10 的 `com.tencent.mm` 主进程中加载 LSPlant。
@@ -15,10 +20,16 @@ DisplayMetrics 缓存和直接改写的主题资源；读取方法沿用原像�
 窗口的 densityDpi、density、scaledDensity。保留微信 h()/i() 路径，使位图
 默认密度与资源同步。既有 Device Faker 提供的 Z Fold6 身份保持不变。
 
+Tinker启用时，在DelegateLastClassLoader构造后按新类安装同样的密度Hook，
+并在Application创建后核对类身份；不清除微信热更新数据。
+
 此前仅修改密度读取结果、或等到 Application.attach/onCreate 才安装的版本，
 都出现过头像比例不一致及图标裁切。不要恢复这些已失败的方案。
 
 ## 已验证产物
+
+当前交付包为 `artifacts/2026-11-01-autostart-0.4/wechat-density-autostart-0.4.zip`，
+同目录保存原生库、DEX、校验、构建审计及实机验证manifest。
 
 `artifacts/2026-11-01-validated/` 原样保留实测文件：
 
@@ -50,15 +61,19 @@ python3 build.py --sdk /path/to/sdk --ndk /path/to/ndk \
   --android-jar /path/to/android.jar --d8 /path/to/d8
 ```
 
-输出 `build/sq2-density-test.zip`、`build/dex/classes.dex`、
+输出 `build/wechat-density-autostart-0.4.zip`、`build/dex/classes.dex`、
 `build/native/libsq2_density_test.so` 和 `build/build-audit.json`。
 新构建默认标为未经过实机验证；源路径、调试信息和打包时间可造成哈希变化。
 
-## 临时测试与回退
+## 开机启用与回退
 
 此模块按设备现有 KernelSU/Zygisk Next 链路使用，无需 Vector 或 Meta 模块。
-安装后默认禁用；新登记可能需要另行授权重启，不自动改变现有启动入口。
-开启 Hook 还需要 Android root shell 中的显式限时 gate：
+0.4安装包启用后，KernelSU在开机时执行一次service.sh，写入仅匹配本次boot ID的
+`0 wechat-auto`授权。它不计时续期，也不保留后台进程。Java层沿用原密度逻辑并
+增加Tinker类加载器适配；原生层在每次目标进程创建前检查disable/remove。
+关闭或卸载模块即阻止后续注入，当前已运行微信的Hook要结束进程才能撤销。
+
+若需手动限时测试，仍可在Android root shell写入原格式开关：
 
 ```sh
 mkdir -p /data/adb/sq2-density-test
@@ -72,9 +87,9 @@ am force-stop --user 10 com.tencent.mm
 am start --user 10 -n com.tencent.mm/.ui.LauncherUI
 ```
 
-gate 的模式可为 probe/wechat，且绑定 boot ID 和 BOOTTIME 截止值。
-gate 缺失、过期或跨重启时不初始化 LSPlant；这不能隔离 SO 自身加载故障。
-到期或删除 gate 只阻止新进程注入，当前进程的 Hook 仍会继续运行。
+手动probe/wechat模式绑定boot ID和BOOTTIME截止值；wechat-auto模式要求deadline=0，
+且只接受微信主进程。开关缺失、手动模式过期或boot ID不匹配时不初始化LSPlant；
+这不能隔离SO自身加载故障。删除开关只阻止新进程注入，当前进程Hook会继续运行。
 
 完整回退：
 
@@ -84,7 +99,8 @@ rm -f /data/adb/sq2-density-test/gate
 am force-stop --user 10 com.tencent.mm
 ```
 
-保留现有 Device Faker、Zygisk Next 和微信数据。没有配置开机持久 gate。
+原0.1归档安装包仍默认禁用并使用限时gate；不要将其与当前0.4开机版本混淆。
+保留现有Device Faker、Zygisk Next和微信数据。
 首次登记曾发生黑屏，后来同一原生库在用户手动启动后工作；原因仍未确定，
 不能把本轮应用内检查视为启动稳定性已经验证。
 
