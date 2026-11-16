@@ -45,7 +45,7 @@ public final class Hooks {
         if (kind.equals("patchLoader")) {
             Object result = original(args);
             if (context != null) {
-                try { install(context, Class.forName("jf5.f", false, (ClassLoader) args[0])); }
+                try { install(context, resolveDensity((ClassLoader) args[0])); }
                 catch (ClassNotFoundException ignored) { /* Unrelated patch loader. */ }
             }
             return result;
@@ -120,6 +120,15 @@ public final class Hooks {
             Log.i(TAG, "CACHES_SYNCHRONIZED count=" + updated + " dpi=" + actual.densityDpi);
         } catch (Throwable t) { Log.e(TAG, "CACHE_SYNC_FAILED", t); }
     }
+    // WeChat 8.0.79 uses jf5.f; 8.0.80 uses bf5.f in both base and Tinker DEX.
+    // Always resolve against the supplied loader, never cache by class name.
+    static Class<?> resolveDensity(ClassLoader loader) throws ClassNotFoundException {
+        for (String name : new String[] {"jf5.f", "bf5.f"}) {
+            try { return Class.forName(name, false, loader); }
+            catch (ClassNotFoundException ignored) { /* Try the next supported name. */ }
+        }
+        throw new ClassNotFoundException("Unsupported WeChat density class (jf5.f / bf5.f)");
+    }
     static void install(Context c) { install(c, null); }
     static synchronized void install(Context c, Class<?> resolved) {
         if (!"com.tencent.mm".equals(c.getPackageName())) return;
@@ -127,7 +136,7 @@ public final class Hooks {
         try {
             long versionCode = c.getPackageManager().getPackageInfo("com.tencent.mm", 0).getLongVersionCode();
             context = c.getApplicationContext() != null ? c.getApplicationContext() : c;
-            Class<?> density = resolved != null ? resolved : Class.forName("jf5.f", false, c.getClassLoader());
+            Class<?> density = resolved != null ? resolved : resolveDensity(c.getClassLoader());
             if (installed && density == densityClass) return;
             if (installed) Log.i(TAG, "DENSITY_CLASSLOADER_CHANGED previous=" + densityClass.getClassLoader()
                     + " current=" + density.getClassLoader());

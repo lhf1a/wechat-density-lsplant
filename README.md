@@ -3,19 +3,20 @@
 微信密度修正的独立实验仓库。2026-11-01 用户确认修正后排版没有问题。
 源码、依赖源码包、原实机验证产物和构建入口均在本仓库内；不属于系统移植默认构建。
 
-当前源码为 `0.4-auto`：开机一次性授权、本次开机持续启用，没有续期循环。
+当前源码为 `0.6-auto`：开机一次性授权、本次开机持续启用，没有续期循环。
 同时处理微信Tinker热更新切换类加载器，避免旧Hook失效。原0.1实测包保留；
 0.3仅作为失败对照，不用于交付。0.4完整包重启、开机自动启用、热更新后的
 密度同步及列表视觉检查通过，详见DEPLOYMENT.md。
 
 ## 实现与范围
 
-Zygisk 在 Android user10 的 `com.tencent.mm` 主进程中加载 LSPlant。
-仅支持实测微信 8.0.79 / versionCode3200；探针模式只接受
+Zygisk 在 Android user0/user10 的 `com.tencent.mm` 主进程中加载 LSPlant。
+兼容已核对的微信 8.0.79 / versionCode3200（`jf5.f`）和
+8.0.80 / versionCode3220（`bf5.f`）；不以版本号代替实际方法形状校验。探针模式只接受
 `local.surface.identityprobe`。不向 system_server、QQ 或微信子进程安装 Hook。
 
 在 `Instrumentation.newApplication(ClassLoader,String,Context)` 原方法前，
-安装 `jf5.f` 的构造器及 d/e 方法 Hook。构造器原逻辑完成后，同步三份
+按当前类加载器查找 `jf5.f` 或 `bf5.f`，安装其构造器及 d/e 方法 Hook。构造器原逻辑完成后，同步三份
 DisplayMetrics 缓存和直接改写的主题资源；读取方法沿用原像素尺寸，使用实际
 窗口的 densityDpi、density、scaledDensity。保留微信 h()/i() 路径，使位图
 默认密度与资源同步。既有 Device Faker 提供的 Z Fold6 身份保持不变。
@@ -26,9 +27,25 @@ Tinker启用时，在DelegateLastClassLoader构造后按新类安装同样的密
 此前仅修改密度读取结果、或等到 Application.attach/onCreate 才安装的版本，
 都出现过头像比例不一致及图标裁切。不要恢复这些已失败的方案。
 
+## 0.6 修复与验证
+
+微信升级到8.0.80后，基础APK和活动Tinker补丁的密度类均改名为`bf5.f`；
+旧DEX仍硬编码`jf5.f`。故障设备的本boot授权有效、原生库已加载，问题不是续期丢失。
+普通安装和Tinker加载器回调现在共用`resolveDensity`，按传入加载器查找两种已知类名，
+保留不提前初始化类、Application创建前安装及构造器后同步缓存的行为。
+
+2026-11-16已仅部署新DEX并重启微信，观察到基础/Tinker两次Hook成功，
+3份缓存在onCreate之前同步300dpi；当前自由窗口列表的头像、搜索/加号与底栏完整。
+未重启系统，未清数据或改全局密度。该结果不等于新SO/完整ZIP经过系统重启验收。
+详细边界见VALIDATION.md。0.6包从源码构建到ignored build/，不覆盖历史归档。
+
+主机回归：`python3 test_density_lookup.py`、`python3 test_service.py`；
+历史归档完整性：`python3 verify.py`。前者运行实际查找方法的Java类加载器夹具，
+覆盖旧/新类名、Tinker不同类身份、未知类拒绝及不提前初始化，不冒充Android Hook测试。
+
 ## 已验证产物
 
-当前交付包为 `artifacts/2026-11-01-autostart-0.4/wechat-density-autostart-0.4.zip`，
+历史完整重启验收包为 `artifacts/2026-11-01-autostart-0.4/wechat-density-autostart-0.4.zip`，
 同目录保存原生库、DEX、校验、构建审计及实机验证manifest。
 
 `artifacts/2026-11-01-validated/` 原样保留实测文件：
@@ -61,14 +78,14 @@ python3 build.py --sdk /path/to/sdk --ndk /path/to/ndk \
   --android-jar /path/to/android.jar --d8 /path/to/d8
 ```
 
-输出 `build/wechat-density-autostart-0.4.zip`、`build/dex/classes.dex`、
+输出 `build/wechat-density-autostart-0.6.zip`、`build/dex/classes.dex`、
 `build/native/libsq2_density_test.so` 和 `build/build-audit.json`。
 新构建默认标为未经过实机验证；源路径、调试信息和打包时间可造成哈希变化。
 
 ## 开机启用与回退
 
 此模块按设备现有 KernelSU/Zygisk Next 链路使用，无需 Vector 或 Meta 模块。
-0.4安装包启用后，KernelSU在开机时执行一次service.sh，写入仅匹配本次boot ID的
+当前安装包启用后，KernelSU在开机时执行一次service.sh，写入仅匹配本次boot ID的
 `0 wechat-auto`授权。它不计时续期，也不保留后台进程。Java层沿用原密度逻辑并
 增加Tinker类加载器适配；原生层在每次目标进程创建前检查disable/remove。
 关闭或卸载模块即阻止后续注入，当前已运行微信的Hook要结束进程才能撤销。

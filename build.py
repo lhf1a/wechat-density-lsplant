@@ -54,7 +54,7 @@ def main():
         run("javac", "--release", "8", "-classpath", android_jar, "-d", classes, ROOT / "Hooks.java")
         run(d8, "--min-api", "28", "--lib", android_jar, "--output", dex,
             *sorted(Path(classes).rglob("*.class")))
-    module = out / "wechat-density-autostart-0.5.zip"
+    module = out / "wechat-density-autostart-0.6.zip"
     package_module(module, native / "libsq2_density_test.so", dex / "classes.dex")
     audit = {
         "outputs": {str(p.relative_to(ROOT)): digest(p) for p in

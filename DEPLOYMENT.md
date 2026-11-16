@@ -53,3 +53,28 @@ onCreate前，实际资源Configuration300dpi；SM-F9560/samsung保留。截图�
 此次只复核列表，未重复所有聊天页、窗口尺寸、手机共存或长期稳定性测试。
 设备旧安装包、DEX及本轮日志/截图暂存均已清除，私有备份留在本机忽略目录。
 微信登录数据保留；正常网络由Android管理，未更改内核/启动入口或实际睡眠保护。
+
+## 2026-11-16：0.6 / 微信8.0.80类名适配
+
+实际故障设备已升级微信8.0.80/versionCode3220、Android user0，活动Tinker为
+patch-40d098e8。只读核对本boot gate有效，原生模块已加载；已安装旧DEX只有
+jf5.f查找，当前基础APK和活动Tinker DEX的密度类均为bf5.f，且保留static d()、
+instance e()返回DisplayMetrics、DisplayMetrics构造器和3份静态缓存的接口形状。
+
+Hooks.resolveDensity按传入ClassLoader支持jf5.f/bf5.f，普通安装和patchLoader
+回调共同使用。原生过滤/授权/服务、机型伪装、h()/i()及缓存同步时机保持。
+主机类查找原/改/回滚退出码1/0/1；旧版查找保留，新版及独立Tinker类身份通过。
+
+用户授权部署后，仅原子替换活跃模块classes.dex并重启微信，保留原生SO、service.sh
+与module.prop；设备显示的模块版本仍为旧0.5-auto，不能据此认为DEX未更新。
+新DEX SHA256 f12c0d2cbedf650023866ba2d76545e63d546691c992d6771c28e9551e77bf15。
+保留原生SO SHA256 fa3e156b5a01dcd84a6881c1a16867a9b1f2f124de85cc36bc44abcbd268cd32。
+
+实时日志确认LSPLANT_INIT_OK、基础包/Tinker两次WECHAT_HOOKS_READY(class=bf5.f)，
+CACHES_SYNCHRONIZED count=3 dpi=300早于onCreate。SM-F9560/samsung身份保留，
+wm physical density保持300；当前自由窗口列表截图中头像/行高、搜索/加号及底栏
+图标文字完整。首张截图为原设备休眠黑屏；唤醒屏幕后才作上述视觉检查。
+
+boot ID、system_server、SurfaceFlinger均未改变。未清除聊天/热更新数据，未重启系统。
+未复测所有聊天页、全部窗口尺寸、长时或完整系统重启；新构建SO和0.6完整ZIP仍只作
+构建候选，不宣称已部署整包。APK、截图和原始日志仅在ignored本地证据目录保存。
