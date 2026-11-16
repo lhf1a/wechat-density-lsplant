@@ -46,6 +46,13 @@ int main() {
   assert(gateAllows("b", "b", "probe", 10, 1, "local.surface.identityprobe"));
   assert(!gateAllows("b", "b", "probe", 10, 1, "com.tencent.mm"));
   assert(!gateAllows("b", "b", "unknown", 10, 1, "com.tencent.mm"));
+  assert(userAndProcessAllowed(10123, "com.tencent.mm"));
+  assert(userAndProcessAllowed(1010123, "com.tencent.mm"));
+  assert(userAndProcessAllowed(10124, "local.surface.identityprobe"));
+  assert(!userAndProcessAllowed(-1, "com.tencent.mm"));
+  assert(!userAndProcessAllowed(1110123, "com.tencent.mm"));
+  assert(!userAndProcessAllowed(10123, "com.tencent.mm:tools"));
+  assert(!userAndProcessAllowed(10123, "com.tencent.mobileqq"));
 }
 ''')
     executable = base / "gate_test"

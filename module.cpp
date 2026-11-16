@@ -49,9 +49,8 @@ public:
         const char *name = env->GetStringUTFChars(args->nice_name, nullptr);
         std::string process(name);
         env->ReleaseStringUTFChars(args->nice_name, name);
-        // Main process only, and only Android user 10 in this lab test.
-        if (args->uid / 100000 != 10 ||
-            (process != "com.tencent.mm" && process != "local.surface.identityprobe")) {
+        // Main process only, for primary user 0 or multi-user 10.
+        if (!userAndProcessAllowed(args->uid, process)) {
             api->setOption(zygisk::DLCLOSE_MODULE_LIBRARY);
             return;
         }

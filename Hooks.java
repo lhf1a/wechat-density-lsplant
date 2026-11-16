@@ -125,8 +125,7 @@ public final class Hooks {
         if (!"com.tencent.mm".equals(c.getPackageName())) return;
         int before = live.size();
         try {
-            if (c.getPackageManager().getPackageInfo("com.tencent.mm", 0).getLongVersionCode() != 3200L)
-                throw new IllegalStateException("Only verified WeChat 8.0.79/versionCode 3200 is supported");
+            long versionCode = c.getPackageManager().getPackageInfo("com.tencent.mm", 0).getLongVersionCode();
             context = c.getApplicationContext() != null ? c.getApplicationContext() : c;
             Class<?> density = resolved != null ? resolved : Class.forName("jf5.f", false, c.getClassLoader());
             if (installed && density == densityClass) return;
@@ -150,9 +149,14 @@ public final class Hooks {
             installed = true;
             // Tinker can initialize a replacement class during Application.attach.
             // Repair its already-created caches before onCreate builds any views.
-            Field cached = density.getDeclaredField("c"); cached.setAccessible(true);
-            if (cached.get(null) != null) synchronizeCaches();
-            Log.i(TAG, "WECHAT_HOOKS_READY variant=pre-application-cache-sync windowDpi=" + dm.densityDpi + " model=" + android.os.Build.MODEL
+            for (Field f : density.getDeclaredFields()) {
+                if (Modifier.isStatic(f.getModifiers()) && f.getType() == DisplayMetrics.class) {
+                    f.setAccessible(true);
+                    if (f.get(null) != null) { synchronizeCaches(); break; }
+                }
+            }
+            Log.i(TAG, "WECHAT_HOOKS_READY variant=pre-application-cache-sync versionCode=" + versionCode
+                    + " windowDpi=" + dm.densityDpi + " model=" + android.os.Build.MODEL
                     + " brand=" + android.os.Build.BRAND + " class=" + density.getName());
         } catch (Throwable t) {
             for (int i = live.size() - 1; i >= before; --i) {

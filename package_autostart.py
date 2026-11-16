@@ -10,7 +10,7 @@ def package_module(output, native, dex):
         target.write(native, "zygisk/arm64-v8a.so")
         target.write(dex, "classes.dex")
         target.writestr("skip_mount", "")
-        target.writestr("module.prop", "id=sq2_density_test\nname=WeChat window density\nversion=0.4-auto\nversionCode=4\nauthor=SQ2 lab\ndescription=WeChat 8.0.79 window density; boot-persistent authorization without renewal; user10 main process only.\n")
+        target.writestr("module.prop", "id=sq2_density_test\nname=WeChat window density\nversion=0.5-auto\nversionCode=5\nauthor=SQ2 lab\ndescription=WeChat window density; boot-persistent authorization without renewal; user0/user10 main process, no versionCode limit.\n")
         target.writestr("customize.sh", 'SKIPUNZIP=0\nchmod 755 "$MODPATH/service.sh" "$MODPATH/uninstall.sh"\n')
         for name in ("service.sh", "uninstall.sh"):
             target.write(ROOT / name, name)
